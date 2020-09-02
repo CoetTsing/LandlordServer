@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QTime>
 #include <QtGlobal>
+#include <algorithm>
 
 GamePage::GamePage(QWidget *parent) :
     QWidget(parent),
@@ -43,6 +44,7 @@ void GamePage::deal() {
         cardsLord.push_back(cardsAll[i]);
     for (int i = 3; i < 20; i++)
         cardsP1.push_back(cardsAll[i]);
+    std::sort(cardsP1.begin(), cardsP1.end(), cmp);
     for (int i = 20; i < 37; i++)
         cardsP2.push_back(cardsAll[i]);
     for (int i = 37; i < 54; i++)
@@ -58,10 +60,18 @@ int GamePage::rollcard() {
         return rollcard();
 }
 
+bool GamePage::cmp(int a, int b) {
+    return a > b;
+}
+
 void GamePage::showCardsLord() {
     for (int i = 0; i < 3; i++) {
         labelsLord[i] = new QLabel(this);
-        QString path = ":/cards/" + QString::number(cardsLord[i]) + ".png";
+        QString path;
+        if (cardsLord[i] < 100)
+            path = ":/cards/10" + QString::number(cardsLord[i]) + ".png";
+        else
+            path = ":/cards/1" + QString::number(cardsLord[i]) + ".png";
         QPixmap pic(path);
         pic.scaled(72, 97, Qt::KeepAspectRatio);
         labelsLord[i]->setScaledContents(true);
@@ -74,8 +84,14 @@ void GamePage::showCardsLord() {
 
 void GamePage::showCards() {
     for (int i = 0; i < cardsP1.size(); i++) {
+        if (labels[i] != nullptr)
+            delete labels[i];
         labels[i] = new QLabel(this);
-        QString path = ":/cards/" + QString::number(cardsP1[i]) + ".png";
+        QString path;
+        if (cardsP1[i] < 100)
+            path = ":/cards/10" + QString::number(cardsP1[i]) + ".png";
+        else
+            path = ":/cards/1" + QString::number(cardsP1[i]) + ".png";
         QPixmap pic(path);
         pic.scaled(143, 193, Qt::KeepAspectRatio);
         labels[i]->setScaledContents(true);

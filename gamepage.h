@@ -17,6 +17,7 @@ public:
     ~GamePage();
     void deal();
     int rollcard();
+    static bool cmp(int a, int b);
     void showCardsLord();
     void showCards();
     void mousePressEvent(QMouseEvent *);
