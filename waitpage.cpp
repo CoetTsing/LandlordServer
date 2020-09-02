@@ -11,5 +11,13 @@ WaitPage::WaitPage(QWidget *parent)
 WaitPage::~WaitPage()
 {
     delete ui;
+    delete game;
 }
 
+
+void WaitPage::on_pushButton_clicked()
+{
+    game = new GamePage;
+    this->close();
+    game->show();
+}

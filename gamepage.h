@@ -14,9 +14,17 @@ class GamePage : public QWidget
 public:
     explicit GamePage(QWidget *parent = nullptr);
     ~GamePage();
+    void deal();
+    int rollcard();
 
 private:
     Ui::GamePage *ui;
+    bool have[54] = {0};
+    QVector<int> cardsAll;
+    QVector<int> cardsLord;
+    QVector<int> cardsP1;
+    QVector<int> cardsP2;
+    QVector<int> cardsP3;
 };
 
 #endif // GAMEPAGE_H
