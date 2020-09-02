@@ -10,7 +10,10 @@ GamePage::GamePage(QWidget *parent) :
 {
     ui->setupUi(this);
     qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
+    setMouseTracking(true);
     deal();
+    showCardsLord();
+    showCards();
 }
 
 GamePage::~GamePage()
@@ -53,4 +56,37 @@ int GamePage::rollcard() {
         return a;
     } else
         return rollcard();
+}
+
+void GamePage::showCardsLord() {
+    for (int i = 0; i < 3; i++) {
+        labelsLord[i] = new QLabel(this);
+        QString path = ":/cards/" + QString::number(cardsLord[i]) + ".png";
+        QPixmap pic(path);
+        pic.scaled(72, 97, Qt::KeepAspectRatio);
+        labelsLord[i]->setScaledContents(true);
+        labelsLord[i]->setPixmap(pic);
+        labelsLord[i]->resize(72, 97);
+        labelsLord[i]->move(464 + i * 100, 30);
+        labelsLord[i]->show();
+    }
+}
+
+void GamePage::showCards() {
+    for (int i = 0; i < cardsP1.size(); i++) {
+        labels[i] = new QLabel(this);
+        QString path = ":/cards/" + QString::number(cardsP1[i]) + ".png";
+        QPixmap pic(path);
+        pic.scaled(143, 193, Qt::KeepAspectRatio);
+        labels[i]->setScaledContents(true);
+        labels[i]->setText(QString::number(i));
+        labels[i]->setPixmap(pic);
+        labels[i]->resize(143, 193);
+        labels[i]->move(200 + i * 40, 550);
+        labels[i]->show();
+    }
+}
+
+void GamePage::mousePressEvent(QMouseEvent *) {
+
 }

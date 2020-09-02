@@ -2,6 +2,7 @@
 #define GAMEPAGE_H
 
 #include <QWidget>
+#include <QLabel>
 
 namespace Ui {
 class GamePage;
@@ -16,6 +17,9 @@ public:
     ~GamePage();
     void deal();
     int rollcard();
+    void showCardsLord();
+    void showCards();
+    void mousePressEvent(QMouseEvent *);
 
 private:
     Ui::GamePage *ui;
@@ -25,6 +29,8 @@ private:
     QVector<int> cardsP1;
     QVector<int> cardsP2;
     QVector<int> cardsP3;
+    QVector<QLabel*> labelsLord = QVector<QLabel*>(3);
+    QVector<QLabel*> labels = QVector<QLabel*>(20);
 };
 
 #endif // GAMEPAGE_H
