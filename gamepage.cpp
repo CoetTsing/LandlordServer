@@ -15,10 +15,6 @@ GamePage::GamePage(QWidget *parent) :
     tcpServer = new QTcpServer(this);
     tcpServer->listen(QHostAddress::Any, 8888);
     connect(tcpServer, &QTcpServer::newConnection, this, &GamePage::connectToClient);
-    deal();
-    showCardsLord();
-    showCards();
-    delete labels[3];
 }
 
 GamePage::~GamePage()
@@ -27,20 +23,33 @@ GamePage::~GamePage()
 }
 
 void GamePage::connectToClient() {
-    if (totalplayer == 0) {
-        qDebug() << 1;
+    if (totalplayer == 1) {
         serverSocket1 = tcpServer->nextPendingConnection();
         totalplayer++;
         connect(serverSocket1, &QTcpSocket::readyRead, this, &GamePage::readInfo1);
         QString p2 = "02";
         serverSocket1->write(p2.toUtf8().data());
-    } else if (totalplayer == 1) {
-        qDebug() << 2;
+    } else if (totalplayer == 2) {
         serverSocket2 = tcpServer->nextPendingConnection();
         totalplayer++;
         connect(serverSocket2, &QTcpSocket::readyRead, this, &GamePage::readInfo2);
         QString p3 = "03";
         serverSocket2->write(p3.toUtf8().data());
+        for (int i = 0; i < 3; i++) {
+            labelsLord[i] = new QLabel(this);
+            QString path = ":/cards/" + QString::number(1316) + ".png";
+            QPixmap pic(path);
+            pic.scaled(72, 97, Qt::KeepAspectRatio);
+            labelsLord[i]->setScaledContents(true);
+            labelsLord[i]->setPixmap(pic);
+            labelsLord[i]->resize(72, 97);
+            labelsLord[i]->move(464 + i * 100, 30);
+            labelsLord[i]->show();
+        }
+        deal();
+        showCards();
+        nowplayer = qrand() % 3 + 1;
+
     }
 }
 
@@ -56,9 +65,9 @@ void GamePage::deal() {
     for (int i = 0; i < 54; i++) {
         int a = rollcard();
         if (a == 52)
-            cardsAll.push_back(215);
+            cardsAll.push_back(1215);
         else if (a == 53)
-            cardsAll.push_back(225);
+            cardsAll.push_back(1225);
         else {
             if (a < 13)
                 cardsAll.push_back(1000 + (a % 13 + 1) * 10);
@@ -77,8 +86,20 @@ void GamePage::deal() {
     std::sort(cardsP1.begin(), cardsP1.end(), cmp);
     for (int i = 20; i < 37; i++)
         cardsP2.push_back(cardsAll[i]);
+    std::sort(cardsP2.begin(), cardsP2.end(), cmp);
+    QString cardsToP2 = "1";
+    for (auto x: cardsP2)
+        cardsToP2 += QString::number(x);
+   qDebug() << cardsToP2;
+    serverSocket1->write(cardsToP2.toUtf8().data());
     for (int i = 37; i < 54; i++)
         cardsP3.push_back(cardsAll[i]);
+    std::sort(cardsP3.begin(), cardsP3.end(), cmp);
+    QString cardsToP3 = "1";
+    for (auto x: cardsP3)
+        cardsToP3 += QString::number(x);
+    qDebug() << cardsToP3;
+    serverSocket2->write(cardsToP3.toUtf8().data());
 }
 
 int GamePage::rollcard() {
@@ -96,6 +117,7 @@ bool GamePage::cmp(int a, int b) {
 
 void GamePage::showCardsLord() {
     for (int i = 0; i < 3; i++) {
+        delete labelsLord[i];
         labelsLord[i] = new QLabel(this);
         QString path = ":/cards/" + QString::number(cardsLord[i]) + ".png";
         QPixmap pic(path);
@@ -109,9 +131,12 @@ void GamePage::showCardsLord() {
 }
 
 void GamePage::showCards() {
-    for (int i = 0; i < cardsP1.size(); i++) {
+    for (int i = 0; i < 20; i++) {
         if (labels[i] != nullptr)
             delete labels[i];
+        labels[i] = nullptr;
+    }
+    for (int i = 0; i < cardsP1.size(); i++) {
         labels[i] = new QLabel(this);
         QString path = ":/cards/" + QString::number(cardsP1[i]) + ".png";
         QPixmap pic(path);
@@ -126,5 +151,9 @@ void GamePage::showCards() {
 }
 
 void GamePage::mousePressEvent(QMouseEvent *) {
+
+}
+
+void GamePage::go() {
 
 }

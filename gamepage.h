@@ -23,13 +23,18 @@ public:
     void showCardsLord();
     void showCards();
     void mousePressEvent(QMouseEvent *);
+    void go();
 
 private:
     Ui::GamePage *ui;
     QTcpServer* tcpServer = nullptr;
     QTcpSocket* serverSocket1 = nullptr;
     QTcpSocket* serverSocket2 = nullptr;
-    int totalplayer = 0;
+    int totalplayer = 1;
+    bool lordExist = false;
+    int lordplayer;
+    int playerId = 1;
+    int nowplayer;
     bool have[54] = {0};
     QVector<int> cardsAll;
     QVector<int> cardsLord;
