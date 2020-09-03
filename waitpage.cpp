@@ -11,7 +11,6 @@ WaitPage::WaitPage(QWidget *parent)
 WaitPage::~WaitPage()
 {
     delete ui;
-    delete game;
 }
 
 

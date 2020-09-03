@@ -3,6 +3,8 @@
 
 #include <QWidget>
 #include <QLabel>
+#include <QTcpServer>
+#include <QTcpSocket>
 
 namespace Ui {
 class GamePage;
@@ -24,6 +26,10 @@ public:
 
 private:
     Ui::GamePage *ui;
+    QTcpServer* tcpServer = nullptr;
+    QTcpSocket* serverSocket1 = nullptr;
+    QTcpSocket* serverSocket2 = nullptr;
+    int totalplayer = 0;
     bool have[54] = {0};
     QVector<int> cardsAll;
     QVector<int> cardsLord;
@@ -32,6 +38,11 @@ private:
     QVector<int> cardsP3;
     QVector<QLabel*> labelsLord = QVector<QLabel*>(3);
     QVector<QLabel*> labels = QVector<QLabel*>(20);
+
+private slots:
+    void connectToClient();
+    void readInfo1();
+    void readInfo2();
 };
 
 #endif // GAMEPAGE_H
