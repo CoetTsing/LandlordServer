@@ -23,6 +23,10 @@ public:
     void showCardsLord();
     void showCards();
     void mousePressEvent(QMouseEvent *);
+    void hide();
+    void ask();
+    void whoIsLord();
+    void heIsLord();
     void go();
 
 private:
@@ -31,10 +35,10 @@ private:
     QTcpSocket* serverSocket1 = nullptr;
     QTcpSocket* serverSocket2 = nullptr;
     int totalplayer = 1;
-    bool lordExist = false;
+    QString lord = "";
     int lordplayer;
     int playerId = 1;
-    int nowplayer;
+    int nowPlayer;
     bool have[54] = {0};
     QVector<int> cardsAll;
     QVector<int> cardsLord;
@@ -48,6 +52,8 @@ private slots:
     void connectToClient();
     void readInfo1();
     void readInfo2();
+    void on_ask_clicked();
+    void on_noask_clicked();
 };
 
 #endif // GAMEPAGE_H
