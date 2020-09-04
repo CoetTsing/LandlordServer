@@ -22,12 +22,15 @@ public:
     static bool cmp(int a, int b);
     void showCardsLord();
     void showCards();
+    void showCardsCenter();
     void mousePressEvent(QMouseEvent *);
     void hide();
     void ask();
     void whoIsLord();
     void heIsLord();
     void go();
+    void check();
+    bool test();
 
 private:
     Ui::GamePage *ui;
@@ -43,14 +46,18 @@ private:
     bool have[54] = {0};
     QVector<int> cardsAll;
     QVector<int> cardsLord;
+    QVector<int> cardsCenter;
     QVector<int> cardsP1;
     QVector<int> cardsP2;
     QVector<int> cardsP3;
     QVector<QLabel*> labelsLord = QVector<QLabel*>(3);
     QVector<QLabel*> labels = QVector<QLabel*>(20);
-    bool cardsChosen[20] = {0};
+    QVector<QLabel*> labelsCenter = QVector<QLabel*>(10);
+    bool cardsChosen[21] = {0};
     QVector<int> cardsToGo;
-    QVector<int> cardsCenter;
+    int type;
+    int typeRecived;
+    int num;
 
 private slots:
     void connectToClient();

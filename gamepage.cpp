@@ -198,10 +198,30 @@ void GamePage::showCards() {
     }
 }
 
+void GamePage::showCardsCenter() {
+    for (int i = 0; i < 10; i++) {
+        if (labelsCenter[i] != nullptr)
+            delete labelsCenter[i];
+        labelsCenter[i] = nullptr;
+    }
+    for (int i = 0; i < cardsCenter.size(); i++) {
+        labelsCenter[i] = new QLabel(this);
+        QString path = ":/cards/" + QString::number(cardsCenter[i]) + ".png";
+        QPixmap pic(path);
+        pic.scaled(143, 193, Qt::KeepAspectRatio);
+        labelsCenter[i]->setScaledContents(true);
+        labelsCenter[i]->setText(QString::number(i));
+        labelsCenter[i]->setPixmap(pic);
+        labelsCenter[i]->resize(143, 193);
+        labelsCenter[i]->move(400 + i * 40, 250);
+        labelsCenter[i]->show();
+    }
+}
+
 void GamePage::mousePressEvent(QMouseEvent *event) {
     int x = event->x();
     int y = event->y();
-    int n = 0;
+    int n = 21;
     if (x >= 200 && x <= 200 + 40 * cardsP1.size() && y <= 743 && y >= 550)
         n = (x - 200) / 40;
     cardsChosen[n] = !cardsChosen[n];
@@ -250,6 +270,7 @@ void GamePage::whoIsLord() {
 
 void GamePage::heIsLord() {
     nowPlayer = lordplayer;
+    previousPlayer = lordplayer;
     hide();
     QString iAmLord = "3" + QString::number(lordplayer);
     serverSocket1->write(iAmLord.toUtf8().data());
@@ -275,8 +296,108 @@ void GamePage::heIsLord() {
 void GamePage::go() {
     if (nowPlayer == 1) {
         ui->go->show();
+        ui->nogo->setEnabled(true);
         ui->nogo->show();
     }
+    if (previousPlayer == 1) {
+        ui->nogo->setEnabled(false);
+    }
+}
+
+void GamePage::check() {
+    QVector<int> c;
+    for (auto x: cardsToGo)
+        c.push_back(x / 10);
+    qDebug() << c;
+    if (c.size() == 1)
+        type = 1;
+    else if (c.size() == 2) {
+        if (c[0]== c[1])
+            type = 2;
+        else if (c[0] == 122 && c[1] == 121)
+            type = 9;
+        else
+            type = 0;
+    }
+    else if (c.size() == 3) {
+        if (c[0] == c[1] && c[1] == c[2])
+            type = 3;
+        else
+            type = 0;
+    }
+    else if (c.size() == 4) {
+        if (c[0] == c[1] && c[1] == c[2] && c[2] == c[3])
+            type = 8;
+        else if ((c[0] == c[1] && c[1] == c[2] && c[2] != c[3])
+                 || (c[1] == c[2] && c[2] == c[3] && c[0] != c[1]))
+            type = 3;
+        else
+            type = 0;
+    }
+    else if (c.size() == 5) {
+        if ((c[0] == c[1] && c[1] == c[2] && c[2] != c[3] && c[3] == c[4])
+                || (c[1] != c[2] && c[2] == c[3] && c[0] == c[1] && c[3] == c[4]))
+            type = 3;
+        else if (c[0] - c[1] == 1 && c[1] - c[2] == 1 && c[2] - c[3] == 1 && c[3] - c[4] == 1)
+            type = 4;
+        else
+            type = 0;
+    }
+    else if (c.size() == 6) {
+        if (c[0] - c[1] == 1 && c[1] - c[2] == 1 && c[2] - c[3] == 1 && c[3] - c[4] == 1 && c[4] - c[5] == 1)
+            type = 4;
+        else if (c[0] == c[1] && c[1] - c[2] == 1 && c[2] == c[3] && c[3] - c[4] == 1 && c[4] == c[5])
+            type = 5;
+        else if ((c[0] == c[1] && c[1] == c[2] && c[2] == c[3] && c[4] == c[5])
+                 || (c[0] == c[1] && c[2] == c[3] && c[3] == c[4] && c[4] == c[5]))
+            type = 6;
+        else if (c[0] == c[1] && c[1] == c[2] && c[2] - c[3] == 1 && c[3] == c[4] && c[4] == c[5])
+            type = 7;
+        else
+            type = 0;
+    }
+    else if (c.size() == 7) {
+        if (c[0] - c[1] == 1 && c[1] - c[2] == 1 && c[2] - c[3] == 1 && c[3] - c[4] == 1 && c[4] - c[5] == 1 && c[5] - c[6] == 1)
+            type = 4;
+        else
+            type = 0;
+    }
+    else if (c.size() == 8) {
+        if (c[0] - c[1] == 1 && c[1] - c[2] == 1 && c[2] - c[3] == 1 && c[3] - c[4] == 1 && c[4] - c[5] == 1 && c[5] - c[6] == 1 && c[6] - c[7] == 1)
+            type = 4;
+        else if (c[0] == c[1] && c[1] - c[2] == 1 && c[2] == c[3] && c[3] - c[4] == 1 && c[4] == c[5] && c[5] - c[6] == 1 && c[6] == c[7])
+            type = 5;
+        else if ((c[2] == c[3] && c[3] == c[4] && c[4] - c[5] == 1 && c[5] == c[6] && c[6] == c[7])
+                 || (c[1] == c[2] && c[2] == c[3] && c[3] - c[4] == 1 && c[4] == c[5] && c[5] == c[6])
+                 || (c[0] == c[1] && c[1] == c[2] && c[2] - c[3] == 1 && c[3] == c[4] && c[4] == c[5]))
+            type = 7;
+        else
+            type = 0;
+    }
+    else if (c.size() == 9) {
+        if (c[0] - c[1] == 1 && c[1] - c[2] == 1 && c[2] - c[3] == 1 && c[3] - c[4] == 1 && c[4] - c[5] == 1 && c[5] - c[6] == 1 && c[6] - c[7] == 1 && c[7] == c[8])
+            type = 4;
+        else if (c[0] == c[1] && c[1] == c[2] && c[2] - c[3] == 1 && c[3] == c[4] && c[4] == c[5] && c[5] - c[6] == 1 && c[6] == c[7] && c[7] == c[8])
+            type = 7;
+        else
+            type = 0;
+    }
+    else if (c.size() == 10) {
+        if (c[0] - c[1] == 1 && c[1] - c[2] == 1 && c[2] - c[3] == 1 && c[3] - c[4] == 1 && c[4] - c[5] == 1 && c[5] - c[6] == 1 && c[6] - c[7] == 1 && c[7] - c[8] == 1 && c[8] - c[9] == 1)
+            type = 4;
+        else if (c[0] == c[1] && c[1] - c[2] == 1 && c[2] == c[3] && c[3] - c[4] == 1 && c[4] == c[5] && c[5] - c[6] == 1 && c[6] == c[7] && c[7] - c[8] == 1 && c[8] == c[9])
+            type = 5;
+        else if ((c[0] == c[1] && c[2] == c[3] && c[4] == c[5] && c[5] == c[6] && c[6] - c[7] == 1 && c[7] == c[8] && c[8] == c[9])
+                 || (c[0] == c[1] && c[2] == c[3] && c[3] == c[4] && c[4] - c[5] == 1 && c[5] == c[6] && c[6] == c[7] && c[8] == c[9])
+                 || (c[0] == c[1] && c[1] == c[2] && c[2] - c[3] == 1 && c[3] == c[4] && c[4] == c[5] && c[6] == c[7] && c[8] == c[9]))
+            type = 7;
+        else
+            type = 0;
+    }
+}
+
+bool GamePage::test() {
+    return true;
 }
 
 void GamePage::on_ask_clicked()
@@ -313,7 +434,32 @@ void GamePage::on_noask_clicked()
 
 void GamePage::on_go_clicked()
 {
+    cardsToGo.clear();
+    for (int i = 0; i < cardsP1.size(); i++)
+        if (cardsChosen[i])
+            cardsToGo.push_back(cardsP1[i]);
+    check();
+    qDebug() << type;
+    if (type != 0) {
+        if (test()) {
 
+            for (auto x: cardsToGo)
+                cardsCenter.push_back(x);
+            showCardsCenter();
+            cardsCenter.clear();
+            QVector<int> tmp;
+            for (int i = 0; i < cardsP1.size(); i++) {
+                if (!cardsChosen[i])
+                    tmp.push_back(cardsP1[i]);
+                else
+                    cardsChosen[i] = false;
+            }
+            cardsP1.clear();
+            for (auto x: tmp)
+                cardsP1.push_back(x);
+            showCards();
+        }
+    }
 }
 
 void GamePage::on_nogo_clicked()
