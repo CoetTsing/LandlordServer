@@ -4,6 +4,7 @@
 #include <QTime>
 #include <QtGlobal>
 #include <algorithm>
+#include <QMouseEvent>
 
 GamePage::GamePage(QWidget *parent) :
     QWidget(parent),
@@ -15,6 +16,8 @@ GamePage::GamePage(QWidget *parent) :
     ui->label_6->hide();
     ui->ask->hide();
     ui->noask->hide();
+    ui->go->hide();
+    ui->nogo->hide();
     qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
     setMouseTracking(true);
     tcpServer = new QTcpServer(this);
@@ -195,8 +198,19 @@ void GamePage::showCards() {
     }
 }
 
-void GamePage::mousePressEvent(QMouseEvent *) {
-
+void GamePage::mousePressEvent(QMouseEvent *event) {
+    int x = event->x();
+    int y = event->y();
+    int n = 0;
+    if (x >= 200 && x <= 200 + 40 * cardsP1.size() && y <= 743 && y >= 550)
+        n = (x - 200) / 40;
+    cardsChosen[n] = !cardsChosen[n];
+    for (int i = 0; i < cardsP1.size(); i++) {
+        if (cardsChosen[i])
+            labels[i]->move(200 + i * 40, 530);
+        else
+           labels[i]->move(200 + i * 40, 550);
+    }
 }
 
 void GamePage::hide() {
@@ -235,6 +249,8 @@ void GamePage::whoIsLord() {
 }
 
 void GamePage::heIsLord() {
+    nowPlayer = lordplayer;
+    hide();
     QString iAmLord = "3" + QString::number(lordplayer);
     serverSocket1->write(iAmLord.toUtf8().data());
     serverSocket2->write(iAmLord.toUtf8().data());
@@ -250,10 +266,17 @@ void GamePage::heIsLord() {
         std::sort(cardsP1.begin(), cardsP1.end(), cmp);
         showCards();
     }
+    QString toGo = "5" + QString::number(lordplayer) + QString::number(lordplayer) + "0";
+    serverSocket1->write(toGo.toUtf8().data());
+    serverSocket2->write(toGo.toUtf8().data());
+    go();
 }
 
 void GamePage::go() {
-
+    if (nowPlayer == 1) {
+        ui->go->show();
+        ui->nogo->show();
+    }
 }
 
 void GamePage::on_ask_clicked()
@@ -286,4 +309,14 @@ void GamePage::on_noask_clicked()
     }
     ui->ask->hide();
     ui->noask->hide();
+}
+
+void GamePage::on_go_clicked()
+{
+
+}
+
+void GamePage::on_nogo_clicked()
+{
+
 }

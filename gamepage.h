@@ -39,6 +39,7 @@ private:
     int lordplayer;
     int playerId = 1;
     int nowPlayer;
+    int previousPlayer;
     bool have[54] = {0};
     QVector<int> cardsAll;
     QVector<int> cardsLord;
@@ -47,6 +48,9 @@ private:
     QVector<int> cardsP3;
     QVector<QLabel*> labelsLord = QVector<QLabel*>(3);
     QVector<QLabel*> labels = QVector<QLabel*>(20);
+    bool cardsChosen[20] = {0};
+    QVector<int> cardsToGo;
+    QVector<int> cardsCenter;
 
 private slots:
     void connectToClient();
@@ -54,6 +58,8 @@ private slots:
     void readInfo2();
     void on_ask_clicked();
     void on_noask_clicked();
+    void on_go_clicked();
+    void on_nogo_clicked();
 };
 
 #endif // GAMEPAGE_H

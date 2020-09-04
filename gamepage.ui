@@ -195,6 +195,44 @@
     <string>抢</string>
    </property>
   </widget>
+  <widget class="QPushButton" name="go">
+   <property name="geometry">
+    <rect>
+     <x>460</x>
+     <y>480</y>
+     <width>101</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>新蒂下午茶体</family>
+     <pointsize>11</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>出牌</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="nogo">
+   <property name="geometry">
+    <rect>
+     <x>630</x>
+     <y>480</y>
+     <width>101</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>新蒂下午茶体</family>
+     <pointsize>11</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>不出</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>
