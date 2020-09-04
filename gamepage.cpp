@@ -5,6 +5,7 @@
 #include <QtGlobal>
 #include <algorithm>
 #include <QMouseEvent>
+#include <QMessageBox>
 
 GamePage::GamePage(QWidget *parent) :
     QWidget(parent),
@@ -18,6 +19,11 @@ GamePage::GamePage(QWidget *parent) :
     ui->noask->hide();
     ui->go->hide();
     ui->nogo->hide();
+    ui->again->hide();
+    ui->exit->hide();
+    ui->label_7->hide();
+    ui->label_8->hide();
+    ui->label_9->hide();
     qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
     setMouseTracking(true);
     tcpServer = new QTcpServer(this);
@@ -74,6 +80,12 @@ void GamePage::readInfo1() {
             lord = "";
             for (auto i = tmp.begin() + 2; i != tmp.end(); i++)
                 lord += *i;
+            if (lord.contains("1"))
+                ui->label_10->setText("抢");
+            if (lord.contains("2"))
+                ui->label_11->setText("抢");
+            if (lord.contains("3"))
+                ui->label_12->setText("抢");
             QString now = "2" + QString::number(nowPlayer) + lord;
             serverSocket1->write(now.toUtf8().data());
             serverSocket2->write(now.toUtf8().data());
@@ -81,7 +93,75 @@ void GamePage::readInfo1() {
             tmp = tmp.right(tmp.size() - 2 - lord.size());
         } else if (*tmp.begin() == '3') {
             lordplayer = *(tmp.begin() + 1) - '0';
+            ui->label_10->hide();
+            ui->label_11->hide();
+            ui->label_12->hide();
             heIsLord();
+            tmp = tmp.right(tmp.size() - 2);
+        } else if (*tmp.begin() == '5') {
+            nowPlayer = *(tmp.begin() + 1) - '0';
+            hide();
+            previousPlayer = *(tmp.begin() + 2) - '0';
+            typeRecived = *(tmp.begin() + 3) - '0';
+            if (typeRecived == 0)
+                num = 0;
+            else {
+                num = *(tmp.begin() + 4) - '0';
+                if (num == 0)
+                    num = 10;
+            }
+            if (cardsCenter.size() != 0)
+                cardsCenter.clear();
+            for (int i = 5; i < 5 + 4 * num; i += 4) {
+                int a = 1000 * (tmp[i] - '0') + 100 * (tmp[i + 1] - '0') + 10 * (tmp[i + 2] - '0') + (tmp[i + 3] - '0');
+                cardsCenter.push_back(a);
+            }
+            int a;
+            if (cardsCenter.size() == 10)
+                a = 0;
+            else
+                a = cardsCenter.size();
+            QString toGo = "5" + QString::number(nowPlayer) + QString::number(previousPlayer) + QString::number(typeRecived) + QString::number(a);
+            for (auto x: cardsCenter)
+                toGo += QString::number(x);
+            serverSocket1->write(toGo.toUtf8().data());
+            serverSocket2->write(toGo.toUtf8().data());
+            if (previousPlayer == 2) {
+                p1 -= num;
+                ui->label_13->setNum(p1);
+            } else if (previousPlayer == 3) {
+                p2 -= num;
+                ui->label_14->setNum(p2);
+            }
+            showCardsCenter();
+            go();
+            tmp = tmp.right(tmp.size() - 5 - num * 4);
+        } else if (*tmp.begin() == '6') {
+            nowPlayer = *(tmp.begin() + 1) - '0';
+            hide();
+            QString toGo = "6" + QString::number(nowPlayer);
+            serverSocket1->write(toGo.toUtf8().data());
+            serverSocket2->write(toGo.toUtf8().data());
+            go();
+            tmp = tmp.right(tmp.size() - 2);
+        } else if (*tmp.begin() == '7') {
+            nowPlayer = *(tmp.begin() + 1) - '0';
+            QString win = "7" + QString::number(nowPlayer);
+            serverSocket1->write(win.toUtf8().data());
+            serverSocket2->write(win.toUtf8().data());
+            if (nowPlayer == playerId) {
+                QMessageBox::information(this, "胜利", "胜利!");
+                ui->go->hide();
+                ui->nogo->hide();
+                ui->again->show();
+                ui->exit->show();
+            } else {
+                QMessageBox::information(this, "失败", "失败!");
+                ui->go->hide();
+                ui->nogo->hide();
+                ui->again->show();
+                ui->exit->show();
+            }
             tmp = tmp.right(tmp.size() - 2);
         }
     }
@@ -97,6 +177,12 @@ void GamePage::readInfo2() {
             lord = "";
             for (auto i = tmp.begin() + 2; i != tmp.end(); i++)
                 lord += *i;
+            if (lord.contains("1"))
+                ui->label_10->setText("抢");
+            if (lord.contains("2"))
+                ui->label_11->setText("抢");
+            if (lord.contains("3"))
+                ui->label_12->setText("抢");
             QString now = "2" + QString::number(nowPlayer) + lord;
             serverSocket1->write(now.toUtf8().data());
             serverSocket2->write(now.toUtf8().data());
@@ -104,7 +190,75 @@ void GamePage::readInfo2() {
             tmp = tmp.right(tmp.size() - 2 - lord.size());
         } else if (*tmp.begin() == '3') {
             lordplayer = *(tmp.begin() + 1) - '0';
+            ui->label_10->hide();
+            ui->label_11->hide();
+            ui->label_12->hide();
             heIsLord();
+            tmp = tmp.right(tmp.size() - 2);
+        } else if (*tmp.begin() == '5') {
+            nowPlayer = *(tmp.begin() + 1) - '0';
+            hide();
+            previousPlayer = *(tmp.begin() + 2) - '0';
+            typeRecived = *(tmp.begin() + 3) - '0';
+            if (typeRecived == 0)
+                num = 0;
+            else {
+                num = *(tmp.begin() + 4) - '0';
+                if (num == 0)
+                    num = 10;
+            }
+            if (cardsCenter.size() != 0)
+                cardsCenter.clear();
+            for (int i = 5; i < 5 + 4 * num; i += 4) {
+                int a = 1000 * (tmp[i] - '0') + 100 * (tmp[i + 1] - '0') + 10 * (tmp[i + 2] - '0') + (tmp[i + 3] - '0');
+                cardsCenter.push_back(a);
+            }
+            int a;
+            if (cardsCenter.size() == 10)
+                a = 0;
+            else
+                a = cardsCenter.size();
+            QString toGo = "5" + QString::number(nowPlayer) + QString::number(previousPlayer) + QString::number(typeRecived) + QString::number(a);
+            for (auto x: cardsCenter)
+                toGo += QString::number(x);
+            serverSocket1->write(toGo.toUtf8().data());
+            serverSocket2->write(toGo.toUtf8().data());
+            if (previousPlayer == 2) {
+                p1 -= num;
+                ui->label_13->setNum(p1);
+            } else if (previousPlayer == 3) {
+                p2 -= num;
+                ui->label_14->setNum(p2);
+            }
+            showCardsCenter();
+            go();
+            tmp = tmp.right(tmp.size() - 5 - num * 4);
+        } else if (*tmp.begin() == '6') {
+            nowPlayer = *(tmp.begin() + 1) - '0';
+            hide();
+            QString toGo = "6" + QString::number(nowPlayer);
+            serverSocket1->write(toGo.toUtf8().data());
+            serverSocket2->write(toGo.toUtf8().data());
+            go();
+            tmp = tmp.right(tmp.size() - 2);
+        } else if (*tmp.begin() == '7') {
+            nowPlayer = *(tmp.begin() + 1) - '0';
+            QString win = "7" + QString::number(nowPlayer);
+            serverSocket1->write(win.toUtf8().data());
+            serverSocket2->write(win.toUtf8().data());
+            if (nowPlayer == playerId) {
+                QMessageBox::information(this, "胜利", "胜利!");
+                ui->go->hide();
+                ui->nogo->hide();
+                ui->again->show();
+                ui->exit->show();
+            } else {
+                QMessageBox::information(this, "失败", "失败!");
+                ui->go->hide();
+                ui->nogo->hide();
+                ui->again->show();
+                ui->exit->show();
+            }
             tmp = tmp.right(tmp.size() - 2);
         }
     }
@@ -199,7 +353,7 @@ void GamePage::showCards() {
 }
 
 void GamePage::showCardsCenter() {
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 20; i++) {
         if (labelsCenter[i] != nullptr)
             delete labelsCenter[i];
         labelsCenter[i] = nullptr;
@@ -269,9 +423,24 @@ void GamePage::whoIsLord() {
 }
 
 void GamePage::heIsLord() {
+    if (lordplayer == 2)
+        p1 += 3;
+    else if (lordplayer == 3)
+        p2 += 3;
+    ui->label_13->setNum(p1);
+    ui->label_14->setNum(p2);
+    ui->label_10->hide();
+    ui->label_11->hide();
+    ui->label_12->hide();
     nowPlayer = lordplayer;
     previousPlayer = lordplayer;
     hide();
+    if (lordplayer == 2)
+        ui->label_8->show();
+    else if (lordplayer == 1)
+        ui->label_7->show();
+    else
+        ui->label_9->show();
     QString iAmLord = "3" + QString::number(lordplayer);
     serverSocket1->write(iAmLord.toUtf8().data());
     serverSocket2->write(iAmLord.toUtf8().data());
@@ -308,7 +477,7 @@ void GamePage::check() {
     QVector<int> c;
     for (auto x: cardsToGo)
         c.push_back(x / 10);
-    qDebug() << c;
+    //qDebug() << c;
     if (c.size() == 1)
         type = 1;
     else if (c.size() == 2) {
@@ -375,7 +544,7 @@ void GamePage::check() {
             type = 0;
     }
     else if (c.size() == 9) {
-        if (c[0] - c[1] == 1 && c[1] - c[2] == 1 && c[2] - c[3] == 1 && c[3] - c[4] == 1 && c[4] - c[5] == 1 && c[5] - c[6] == 1 && c[6] - c[7] == 1 && c[7] == c[8])
+        if (c[0] - c[1] == 1 && c[1] - c[2] == 1 && c[2] - c[3] == 1 && c[3] - c[4] == 1 && c[4] - c[5] == 1 && c[5] - c[6] == 1 && c[6] - c[7] == 1 && c[7] - c[8] == 1)
             type = 4;
         else if (c[0] == c[1] && c[1] == c[2] && c[2] - c[3] == 1 && c[3] == c[4] && c[4] == c[5] && c[5] - c[6] == 1 && c[6] == c[7] && c[7] == c[8])
             type = 7;
@@ -397,7 +566,96 @@ void GamePage::check() {
 }
 
 bool GamePage::test() {
-    return true;
+    if (previousPlayer == 1)
+        return true;
+    else {
+        if (type != typeRecived) {
+            if (type == 9)
+                return true;
+            else if (type == 8 && typeRecived != 9)
+                return true;
+            else
+                return false;
+        }
+        else {
+            if (cardsToGo.size() != num)
+                return false;
+            else {
+                if (type == 1) {
+                    if (*cardsToGo.begin() / 10 > *cardsCenter.begin() / 10)
+                        return true;
+                    else
+                        return false;
+                } else if (type == 2) {
+                    if (*cardsToGo.begin() / 10 > *cardsCenter.begin() / 10)
+                        return true;
+                    else
+                        return false;
+                } else if (type == 3) {
+                    if (*(cardsToGo.begin() + 2) / 10 > *(cardsCenter.begin() + 2) / 10)
+                        return true;
+                    else
+                        return false;
+                } else if (type == 4) {
+                    if (*cardsToGo.begin() / 10 > *cardsCenter.begin() / 10)
+                        return true;
+                    else
+                        return false;
+                } else if (type == 5) {
+                    if (*cardsToGo.begin() / 10 > *cardsCenter.begin() / 10)
+                        return true;
+                    else
+                        return false;
+                } else if (type == 6) {
+                    if (*(cardsToGo.begin() + 2) / 10 > *(cardsCenter.begin() + 2) / 10)
+                        return true;
+                    else
+                        return false;
+                } else if (type == 7) {
+                    if (cardsToGo.size() <= 8) {
+                        if (*(cardsToGo.begin() + 2) / 10 > *(cardsCenter.begin() + 2) / 10)
+                            return true;
+                        else
+                            return false;
+                    } else if (cardsToGo.size() == 9) {
+                        if (*cardsToGo.begin() / 10 > *cardsCenter.begin() / 10)
+                            return true;
+                        else
+                            return false;
+                    } else {
+                        int a, b;
+                        QVector<int> c;
+                        for (auto x: cardsToGo)
+                            c.push_back(x / 10);
+                        if (c[0] == c[1] && c[1] == c[2])
+                            a = c[0];
+                        else if (c[2] == c[3] && c[3] == c[4])
+                            a = c[2];
+                        else
+                            a = c[4];
+                        c.clear();
+                        for (auto x: cardsCenter)
+                            c.push_back(x / 10);
+                        if (c[0] == c[1] && c[1] == c[2])
+                            b = c[0];
+                        else if (c[2] == c[3] && c[3] == c[4])
+                            b = c[2];
+                        else
+                            b = c[4];
+                        if (a > b)
+                            return true;
+                        else
+                            return false;
+                    }
+                } else if (type == 8) {
+                    if (*cardsToGo.begin() / 10 > *cardsCenter.begin() / 10)
+                        return true;
+                    else
+                        return false;
+                }
+            }
+        }
+    }
 }
 
 void GamePage::on_ask_clicked()
@@ -414,6 +672,7 @@ void GamePage::on_ask_clicked()
     }
     ui->ask->hide();
     ui->noask->hide();
+    ui->label_10->setText("抢");
 }
 
 void GamePage::on_noask_clicked()
@@ -439,10 +698,24 @@ void GamePage::on_go_clicked()
         if (cardsChosen[i])
             cardsToGo.push_back(cardsP1[i]);
     check();
-    qDebug() << type;
+    //qDebug() << type;
     if (type != 0) {
         if (test()) {
-
+            nowPlayer = 2;
+            previousPlayer = 1;
+            hide();
+            int a;
+            if (cardsToGo.size() == 10)
+                a = 0;
+            else
+                a = cardsToGo.size();
+            QString toGo = "5" + QString::number(nowPlayer) + QString::number(previousPlayer) + QString::number(type) + QString::number(a);
+            for (auto x: cardsToGo)
+                toGo += QString::number(x);
+            serverSocket1->write(toGo.toUtf8().data());
+            serverSocket2->write(toGo.toUtf8().data());
+            if (cardsCenter.size() != 0)
+                cardsCenter.clear();
             for (auto x: cardsToGo)
                 cardsCenter.push_back(x);
             showCardsCenter();
@@ -458,11 +731,43 @@ void GamePage::on_go_clicked()
             for (auto x: tmp)
                 cardsP1.push_back(x);
             showCards();
+            ui->go->hide();
+            ui->nogo->hide();
+            if (cardsP1.size() == 0) {
+                QString win = "71";
+                serverSocket1->write(win.toUtf8().data());
+                serverSocket2->write(win.toUtf8().data());
+                QMessageBox::information(this, "胜利", "胜利!");
+                ui->go->hide();
+                ui->nogo->hide();
+                ui->again->show();
+                ui->exit->show();
+                return;
+            }
+        } else {
+            QMessageBox::information(this, "警告", "出牌不符合规则!");
         }
-    }
+    } else
+        QMessageBox::information(this, "警告", "牌型不符合规则!");
 }
 
 void GamePage::on_nogo_clicked()
 {
+    nowPlayer = 2;
+    hide();
+    QString noGo = "6" + QString::number(nowPlayer);
+    serverSocket1->write(noGo.toUtf8().data());
+    serverSocket2->write(noGo.toUtf8().data());
+    ui->go->hide();
+    ui->nogo->hide();
+}
 
+void GamePage::on_again_clicked()
+{
+
+}
+
+void GamePage::on_exit_clicked()
+{
+    this->close();
 }
