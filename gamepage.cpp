@@ -391,7 +391,8 @@ bool GamePage::cmp(int a, int b) {
 
 void GamePage::showCardsLord() {
     for (int i = 0; i < 3; i++) {
-        delete labelsLord[i];
+        if (labelsLord[i] != nullptr)
+            delete labelsLord[i];
         labelsLord[i] = new QLabel(this);
         QString path = ":/cards/" + QString::number(cardsLord[i]) + ".png";
         QPixmap pic(path);
