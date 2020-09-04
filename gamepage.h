@@ -60,7 +60,7 @@ private:
     int num;
     int p1 = 17;
     int p2 = 17;
-    GamePage* newPage;
+    int next;
 
 private slots:
     void connectToClient();

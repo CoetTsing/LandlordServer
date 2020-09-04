@@ -93,9 +93,9 @@ void GamePage::readInfo1() {
             tmp = tmp.right(tmp.size() - 2 - lord.size());
         } else if (*tmp.begin() == '3') {
             lordplayer = *(tmp.begin() + 1) - '0';
-            ui->label_10->hide();
-            ui->label_11->hide();
-            ui->label_12->hide();
+            ui->label_10->setText("");
+            ui->label_11->setText("");
+            ui->label_12->setText("");
             heIsLord();
             tmp = tmp.right(tmp.size() - 2);
         } else if (*tmp.begin() == '5') {
@@ -149,7 +149,7 @@ void GamePage::readInfo1() {
             QString win = "7" + QString::number(nowPlayer);
             serverSocket1->write(win.toUtf8().data());
             serverSocket2->write(win.toUtf8().data());
-            if (nowPlayer == playerId) {
+            if ((nowPlayer == lordplayer && playerId == lordplayer) || (nowPlayer != lordplayer && playerId != lordplayer)) {
                 QMessageBox::information(this, "胜利", "胜利!");
                 ui->go->hide();
                 ui->nogo->hide();
@@ -163,6 +163,42 @@ void GamePage::readInfo1() {
                 ui->exit->show();
             }
             tmp = tmp.right(tmp.size() - 2);
+        } else if (*tmp.begin() == '8') {
+            tmp = tmp.right(tmp.size() - 1);
+            next++;
+            if (next == 2) {
+                next = 0;
+                ui->label_7->hide();
+                ui->label_8->hide();
+                ui->label_9->hide();
+                ui->label_13->setText("");
+                ui->label_14->setText("");
+                for (int i = 0; i < 3; i++) {
+                    delete labelsLord[i];
+                    labelsLord[i] = new QLabel(this);
+                    QString path = ":/cards/" + QString::number(1316) + ".png";
+                    QPixmap pic(path);
+                    pic.scaled(72, 97, Qt::KeepAspectRatio);
+                    labelsLord[i]->setScaledContents(true);
+                    labelsLord[i]->setPixmap(pic);
+                    labelsLord[i]->resize(72, 97);
+                    labelsLord[i]->move(464 + i * 100, 30);
+                    labelsLord[i]->show();
+                }
+                deal();
+                nowPlayer = qrand() % 3 + 1;
+                hide();
+                QString now = "2" + QString::number(nowPlayer);
+                serverSocket1->write(now.toUtf8().data());
+                serverSocket2->write(now.toUtf8().data());
+                ask();
+            }
+        } else if (*tmp.begin() == '9') {
+            tmp = tmp.right(tmp.size() - 1);
+            QString e = "9";
+            serverSocket1->write(e.toUtf8().data());
+            serverSocket2->write(e.toUtf8().data());
+            this->close();
         }
     }
 }
@@ -190,9 +226,9 @@ void GamePage::readInfo2() {
             tmp = tmp.right(tmp.size() - 2 - lord.size());
         } else if (*tmp.begin() == '3') {
             lordplayer = *(tmp.begin() + 1) - '0';
-            ui->label_10->hide();
-            ui->label_11->hide();
-            ui->label_12->hide();
+            ui->label_10->setText("");
+            ui->label_11->setText("");
+            ui->label_12->setText("");
             heIsLord();
             tmp = tmp.right(tmp.size() - 2);
         } else if (*tmp.begin() == '5') {
@@ -246,7 +282,7 @@ void GamePage::readInfo2() {
             QString win = "7" + QString::number(nowPlayer);
             serverSocket1->write(win.toUtf8().data());
             serverSocket2->write(win.toUtf8().data());
-            if (nowPlayer == playerId) {
+            if ((nowPlayer == lordplayer && playerId == lordplayer) || (nowPlayer != lordplayer && playerId != lordplayer)) {
                 QMessageBox::information(this, "胜利", "胜利!");
                 ui->go->hide();
                 ui->nogo->hide();
@@ -260,6 +296,42 @@ void GamePage::readInfo2() {
                 ui->exit->show();
             }
             tmp = tmp.right(tmp.size() - 2);
+        } else if (*tmp.begin() == '8') {
+            tmp = tmp.right(tmp.size() - 1);
+            next++;
+            if (next == 2) {
+                next = 0;
+                ui->label_7->hide();
+                ui->label_8->hide();
+                ui->label_9->hide();
+                ui->label_13->setText("");
+                ui->label_14->setText("");
+                for (int i = 0; i < 3; i++) {
+                    delete labelsLord[i];
+                    labelsLord[i] = new QLabel(this);
+                    QString path = ":/cards/" + QString::number(1316) + ".png";
+                    QPixmap pic(path);
+                    pic.scaled(72, 97, Qt::KeepAspectRatio);
+                    labelsLord[i]->setScaledContents(true);
+                    labelsLord[i]->setPixmap(pic);
+                    labelsLord[i]->resize(72, 97);
+                    labelsLord[i]->move(464 + i * 100, 30);
+                    labelsLord[i]->show();
+                }
+                deal();
+                nowPlayer = qrand() % 3 + 1;
+                hide();
+                QString now = "2" + QString::number(nowPlayer);
+                serverSocket1->write(now.toUtf8().data());
+                serverSocket2->write(now.toUtf8().data());
+                ask();
+            }
+        } else if (*tmp.begin() == '9') {
+            tmp = tmp.right(tmp.size() - 1);
+            QString e = "9";
+            serverSocket1->write(e.toUtf8().data());
+            serverSocket2->write(e.toUtf8().data());
+            this->close();
         }
     }
 }
@@ -429,9 +501,9 @@ void GamePage::heIsLord() {
         p2 += 3;
     ui->label_13->setNum(p1);
     ui->label_14->setNum(p2);
-    ui->label_10->hide();
-    ui->label_11->hide();
-    ui->label_12->hide();
+    ui->label_10->setText("");
+    ui->label_11->setText("");
+    ui->label_12->setText("");
     nowPlayer = lordplayer;
     previousPlayer = lordplayer;
     hide();
@@ -748,7 +820,7 @@ void GamePage::on_go_clicked()
             QMessageBox::information(this, "警告", "出牌不符合规则!");
         }
     } else
-        QMessageBox::information(this, "警告", "牌型不符合规则!");
+        QMessageBox::information(this, "警告", "出牌不符合规则!");
 }
 
 void GamePage::on_nogo_clicked()
@@ -764,10 +836,33 @@ void GamePage::on_nogo_clicked()
 
 void GamePage::on_again_clicked()
 {
-
+    if (cardsCenter.size() != 0)
+        cardsCenter.clear();
+    showCardsCenter();
+    if (cardsP1.size() != 0)
+        cardsP1.clear();
+    showCards();
+    for (int i = 0; i < 21; i++)
+        cardsChosen[i] = 0;
+    lord = "";
+    if (cardsToGo.size() != 0)
+        cardsToGo.clear();
+    p1 = 17;
+    p2 = 17;
+    cardsAll.clear();
+    cardsLord.clear();
+    cardsP2.clear();
+    cardsP3.clear();
+    for (int i = 0; i < 54; i++)
+        have[i] = 0;
+    ui->again->hide();
+    ui->exit->hide();
 }
 
 void GamePage::on_exit_clicked()
 {
+    QString e = "9";
+    serverSocket1->write(e.toUtf8().data());
+    serverSocket2->write(e.toUtf8().data());
     this->close();
 }
